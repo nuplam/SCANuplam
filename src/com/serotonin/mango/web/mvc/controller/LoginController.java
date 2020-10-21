@@ -127,6 +127,7 @@ public class LoginController extends SimpleFormController {
 						login.getPassword());
 
 			if (!crowdAuthenticated) {
+
 				String passwordHash = Common.encrypt(login.getPassword());
 				logger.trace(" Against hash: " + passwordHash);
 

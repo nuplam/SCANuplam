@@ -60,6 +60,9 @@
             content = $("compoundTemplate").cloneNode(true);
         else if(viewComponent.customComponent)
         	content = $("customTemplate").cloneNode(true);
+        else if (viewComponent.defName == 'report'){
+        	content = $("reportTemplate").cloneNode(true);
+        }
         else
             content = $("htmlTemplate").cloneNode(true);
         
@@ -71,7 +74,7 @@
                     false);
         }
         else if (viewComponent.defName == 'imageChart')
-            ;
+        	;
         else if (viewComponent.compoundComponent) {
             // Compound components only have their static content set at page load.
             $set(content.id +"Content", viewComponent.staticContent);
@@ -92,6 +95,7 @@
     }
     
     function configureComponentContent(content, viewComponent, parent, center) {
+    	
         content.id = "c"+ viewComponent.id;
         content.viewComponentId = viewComponent.id;
         updateNodeIds(content, viewComponent.id);
@@ -105,17 +109,19 @@
         
         show(content);
         
+        var bkgd = $("viewBackground");
+        var bkgdBox = dojo.html.getMarginBox(bkgd);
+        var compContentBox = dojo.html.getMarginBox(content);
+        
         if (center) {
             // Calculate the location for the new point. For now just put it in the center.
-            var bkgd = $("viewBackground");
-            var bkgdBox = dojo.html.getMarginBox(bkgd);
-            var compContentBox = dojo.html.getMarginBox(content);
             content.style.left = parseInt((bkgdBox.width - compContentBox.width) / 2) +"px";
             content.style.top = parseInt((bkgdBox.height - compContentBox.height) / 2) +"px";
         }
         else {
-            content.style.left = viewComponent.x +"px";
-            content.style.top = viewComponent.y +"px";
+            content.style.left = viewComponent.x +"%";
+            content.style.top = viewComponent.y +"%";
+            content.style.width = Math.floor(100*viewComponent.width/bkgdBox.width)+"%";
         }
 
     }
@@ -139,9 +145,21 @@
             $set(id +"Content", content);
     }
     
+    function updateReportComponentContent(id, content) {
+        if (!content || content == "")
+            $set(id +"Content", '<img src="images/report.png" alt=""/>');
+        else
+            $set(id +"Content", content);
+    }
+    
     function openStaticEditor(viewComponentId) {
         closeEditors();
         staticEditor.open(viewComponentId);
+    }
+    
+    function openReportEditor(viewComponentId) {
+        closeEditors();
+        reportEditor.open(viewComponentId);
     }
     
     function openSettingsEditor(cid) {
@@ -177,9 +195,13 @@
         graphicRendererEditor.close();
         staticEditor.close();
         compoundEditor.close();
+        reportEditor.close();
     }
     
     function updateViewComponentLocation(divId) {
+    	var bkgd = $("viewBackground");
+        var bkgdBox = dojo.html.getMarginBox(bkgd);
+    	
         var div = $(divId);
         var lt = div.style.left;
         var tp = div.style.top;
@@ -187,6 +209,9 @@
         // Remove the 'px's from the positions.
         lt = lt.substring(0, lt.length-2);
         tp = tp.substring(0, tp.length-2);
+        
+        lt = parseInt((lt/bkgdBox.width)*100)
+        tp = parseInt((tp/bkgdBox.height)*100)
         
         // Save the new location.
         ViewDwr.setViewComponentLocation(div.viewComponentId, lt, tp);
@@ -363,18 +388,18 @@
     <table width="100%" cellspacing="0" cellpadding="0">
       <tr>
         <td>
-          <table cellspacing="0" cellpadding="0">
+          <table cellspacing="0" cellpadding="0" width="100%">
             <tr>
               <td colspan="3">
                 <div id="viewContent" class="borderDiv" style="left:0px;top:0px;float:left;
-                        padding-right:1px;padding-bottom:1px;">
+                        padding-right:1px;padding-bottom:1px;width: 100%">
                   <c:choose>
                     <c:when test="${empty form.view.backgroundFilename}">
-                      <img id="viewBackground" src="images/spacer.gif" alt="" width="740" height="500"
+                      <img id="viewBackground" src="images/spacer.gif" alt="" width="100%"
                               style="top:1px;left:1px;"/>
                     </c:when>
                     <c:otherwise>
-                      <img id="viewBackground" src="${form.view.backgroundFilename}" alt=""
+                      <img id="viewBackground" src="${form.view.backgroundFilename}" alt="" width="100%"
                               style="top:1px;left:1px;"/>
                     </c:otherwise>
                   </c:choose>
@@ -384,6 +409,7 @@
                   <%@ include file="/WEB-INF/jsp/include/graphicRendererEditor.jsp" %>
                   <%@ include file="/WEB-INF/jsp/include/compoundEditor.jsp" %>
                   <%@ include file="/WEB-INF/jsp/include/customEditor.jsp" %>
+                  <%@ include file="/WEB-INF/jsp/include/reportEditor.jsp" %>
                 </div>
               </td>
             </tr>
@@ -446,8 +472,23 @@
               </table>
             </div>
           </div>
-          
-          
+
+          <div id="reportTemplate" onmouseover="showLayer('c'+ getViewComponentId(this) +'Controls');"
+                  onmouseout="hideLayer('c'+ getViewComponentId(this) +'Controls');"
+                  style="position:absolute;left:0px;top:0px;display:none;">
+            <div id="c_TEMPLATE_Content">
+            	<img src="images/report.png">
+            </div>
+            <div id="c_TEMPLATE_Controls" class="controlsDiv">
+              <table cellpadding="0" cellspacing="1">
+                <tr><td><tag:img png="pencil" onclick="openReportEditor(getViewComponentId(this))"
+                        title="viewEdit.editStaticView"/></td></tr>
+                <tr><td><tag:img png="bullet_delete" onclick="deleteViewComponent(getViewComponentId(this))"
+                        title="viewEdit.deleteStaticView"/></td></tr>
+              </table>
+            </div>
+          </div>                     
+
           <div id="imageChartTemplate" onmouseover="showLayer('c'+ getViewComponentId(this) +'Controls');"
                   onmouseout="hideLayer('c'+ getViewComponentId(this) +'Controls');"
                   style="position:absolute;left:0px;top:0px;display:none;">

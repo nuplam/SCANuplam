@@ -187,7 +187,6 @@
 
 	
 </script>
-
 	<table class="borderDiv" id="graphical">
 		<tr>
 			<td class="smallTitle"><fmt:message key="views.title" /> <tag:help
@@ -243,5 +242,5 @@
 		checkFullScreen();
 	</script>
 
-	<tag:displayView view="${currentView}" emptyMessageKey="views.noViews" />
+	<tag:displayView view="${currentView}" emptyMessageKey="views.noViews" reports="${reports}" />
 </tag:page>

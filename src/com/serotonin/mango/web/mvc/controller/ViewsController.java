@@ -34,11 +34,13 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
 import com.serotonin.db.IntValuePair;
 import com.serotonin.mango.Common;
+import com.serotonin.mango.db.dao.ReportDao;
 import com.serotonin.mango.db.dao.ViewDao;
 import com.serotonin.mango.view.ShareUser;
 import com.serotonin.mango.view.View;
 import com.serotonin.mango.vo.User;
 import com.serotonin.mango.vo.permission.Permissions;
+import com.serotonin.mango.vo.report.ReportVO;
 
 import br.org.scadabr.db.dao.UsersProfileDao;
 import br.org.scadabr.vo.usersProfiles.UsersProfileVO;
@@ -55,6 +57,17 @@ public class ViewsController extends ParameterizableViewController {
 		UsersProfileDao usersProfiles = new UsersProfileDao();
 		LOG.trace("User " + user.getUsername());
 		List<IntValuePair> views;
+
+		ReportDao reportDao = new ReportDao();
+
+		Map<String, ReportVO> reports = new HashMap();
+
+		for (ReportVO report : reportDao.getReports()) {
+			String idString = Integer.toString(report.getId());
+			reports.put(idString, report);
+		}
+
+		model.put("reports", reports);
 
 		if (user.isAdmin()) { // Admin user has access to all views
 			views = viewDao.getAllViewNames();

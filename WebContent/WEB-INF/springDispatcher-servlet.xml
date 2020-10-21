@@ -62,6 +62,7 @@
         <prop key="/publishers.shtm">publisherListController</prop>
         <prop key="/reports.shtm">reportsController</prop>
         <prop key="/reportChart.shtm">reportChartController</prop>
+        <prop key="/customReportChart.shtm">customReportChartController</prop>
         <prop key="/scheduled_events.shtm">scheduledEventsController</prop>
         <prop key="/scripting.shtm">scriptingController</prop>
         <prop key="/sql.shtm">sqlController</prop>
@@ -200,6 +201,8 @@
   </bean>
   
   <bean id="reportChartController" class="com.serotonin.mango.web.mvc.controller.ReportChartController"/>
+  
+  <bean id="customReportChartController" class="com.serotonin.mango.web.mvc.controller.CustomReportChartController"/>
 
   <bean id="reportsController" class="org.springframework.web.servlet.mvc.ParameterizableViewController">
     <property name="viewName"><value>reports</value></property>

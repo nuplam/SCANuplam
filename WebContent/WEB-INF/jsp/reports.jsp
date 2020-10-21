@@ -478,7 +478,7 @@
                 $get("prevPeriodType"), $get("pastPeriodCount"), $get("pastPeriodType"), $get("fromNone"),
                 $get("fromYear"), $get("fromMonth"), $get("fromDay"), $get("fromHour"), $get("fromMinute"),
                 $get("toNone"), $get("toYear"), $get("toMonth"), $get("toDay"), $get("toHour"), $get("toMinute"),
-                $get("email"), $get("includeData"), $get("zipData"), emailRecipients.createRecipientArray(), function(response) {
+                $get("email"), $get("includeData"), $get("zipData"), emailRecipients.createRecipientArray(), selectedReport.id, function(response) {
             stopImageFader("runImg");
             clearMessages();
             

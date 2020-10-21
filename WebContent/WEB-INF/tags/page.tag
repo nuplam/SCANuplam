@@ -22,6 +22,9 @@
 <%@attribute name="dwr" %>
 <%@attribute name="js" %>
 <%@attribute name="onload" %>
+<%@attribute name="showHeader"%>
+<%@attribute name="showMenu"%>
+<%@attribute name="backgroundColor"%>
 
 <html>
 <head>
@@ -33,9 +36,14 @@
   <!-- Meta -->
   <meta http-equiv="content-type" content="application/xhtml+xml;charset=utf-8"/>
   <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="Copyright" content="ScadaBR &copy;©2009-2011 Fundação Certi, MCA Sistemas, Unis Sistemas, Conetec, Todos os direitos reservados."/>
   <meta name="DESCRIPTION" content="ScadaBR Software"/>
   <meta name="KEYWORDS" content="ScadaBR Software"/>
+  
+  <!-- Bootstrap -->
+  <link href="resources/bootstrap-material-design.min.css"
+		type="text/css" rel="stylesheet" />
   
   <!-- Style -->
   <link rel="icon" href="images/favicon.ico"/>
@@ -52,6 +60,7 @@
   <script type="text/javascript" src="dwr/interface/MiscDwr.js"></script>
   <script type="text/javascript" src="resources/soundmanager2-nodebug-jsmin.js"></script>
   <script type="text/javascript" src="resources/common.js"></script>
+  
   <c:forEach items="${dwr}" var="dwrname">
     <script type="text/javascript" src="dwr/interface/${dwrname}.js"></script></c:forEach>
   <c:forEach items="${js}" var="jsname">
@@ -83,7 +92,8 @@
   </c:if>
 </head>
 
-<body>
+<body style="background: ${backgroundColor}">
+<c:if test="${showHeader != null ? showHeader : true}">
 <table width="100%" cellspacing="0" cellpadding="0" border="0" id="mainHeader">
   <tr>
     <td><img src="images/scadabrLogoMed.png" alt="Logo"/></td>
@@ -102,72 +112,74 @@
     </c:if>
   </tr>
 </table>
-
-<c:if test="${!simple}">
-  <table width="100%" cellspacing="0" cellpadding="0" border="0" id="subHeader">
-    <tr>
-      <td style="cursor:default" >
-        <c:if test="${!empty sessionUser}">
-          <tag:menuItem href="watch_list.shtm" png="eye" key="header.watchlist"/>
-          <tag:menuItem href="views.shtm" png="icon_view" key="header.views"/>
-          <tag:menuItem href="events.shtm" png="flag_white" key="header.alarms"/>
-          <tag:menuItem href="reports.shtm" png="report" key="header.reports"/>
-                
-          <c:if test="${sessionUser.dataSourcePermission}">
-            <img src="images/menu_separator.png"/>
-            <tag:menuItem href="event_handlers.shtm" png="cog" key="header.eventHandlers"/>
-            <tag:menuItem href="data_sources.shtm" png="icon_ds" key="header.dataSources"/>
-            <tag:menuItem href="scheduled_events.shtm" png="clock" key="header.scheduledEvents"/>
-            <tag:menuItem href="compound_events.shtm" png="multi_bell" key="header.compoundEvents"/>
-            <tag:menuItem href="point_links.shtm" png="link" key="header.pointLinks"/>
-            <tag:menuItem href="scripting.shtm" png="script_gear" key="header.scripts"/>
-          </c:if>
-          
-          <img src="images/menu_separator.png"/>
-          <tag:menuItem href="users.shtm" png="user" key="header.users"/>
-          
-          <c:if test="${sessionUser.admin}">
-	        <tag:menuItem href="usersProfiles.shtm" png="user_ds" key="header.usersProfiles"/>
-            <tag:menuItem href="point_hierarchy.shtm" png="folder_brick" key="header.pointHierarchy"/>
-            <tag:menuItem href="mailing_lists.shtm" png="book" key="header.mailingLists"/>
-            <tag:menuItem href="publishers.shtm" png="transmit" key="header.publishers"/>
-            <tag:menuItem href="maintenance_events.shtm" png="hammer" key="header.maintenanceEvents"/>
-            <tag:menuItem href="system_settings.shtm" png="application_form" key="header.systemSettings"/>
-            <tag:menuItem href="emport.shtm" png="script_code" key="header.emport"/>
-            <tag:menuItem href="sql.shtm" png="script" key="header.sql"/>
-          </c:if>
-          
-          <img src="images/menu_separator.png"/>
-          <tag:menuItem href="logout.htm" png="control_stop_blue" key="header.logout"/>
-          <tag:menuItem href="help.shtm" png="help" key="header.help"/>
-        </c:if>
-        <c:if test="${empty sessionUser}">
-          <tag:menuItem href="login.htm" png="control_play_blue" key="header.login"/>
-        </c:if>
-        <div id="headerMenuDescription" class="labelDiv" style="position:absolute;display:none;"></div>
-      </td>
-      
-      <td align="right">
-        <c:if test="${!empty sessionUser}">
-          <span class="copyTitle"><fmt:message key="header.user"/>: <b>${sessionUser.username}</b></span>
-          <tag:img id="userMutedImg" onclick="MiscDwr.toggleUserMuted(setUserMuted)" onmouseover="hideLayer('localeEdit')"/>
-          <tag:img png="house" title="header.goHomeUrl" onclick="goHomeUrl()" onmouseover="hideLayer('localeEdit')"/>
-          <tag:img png="house_link" title="header.setHomeUrl" onclick="setHomeUrl()" onmouseover="hideLayer('localeEdit')"/>
-        </c:if>
-        <div style="display:inline;" onmouseover="showMenu('localeEdit', -40, 10);">
-          <tag:img png="world" title="header.changeLanguage"/>
-          <div id="localeEdit" style="visibility:hidden;left:0px;top:15px;" class="labelDiv" onmouseout="hideLayer(this)">
-            <c:forEach items="${availableLanguages}" var="lang">
-              <a class="ptr" onclick="setLocale('${lang.key}')">${lang.value}</a><br/>
-            </c:forEach>
-          </div>
-        </div>
-      </td>
-    </tr>
-  </table>
 </c:if>
-
-<div style="padding:5px;">
+<c:if test="${showMenu != null ? showMenu : true}">
+	<c:if test="${!simple}">
+	  <table width="100%" cellspacing="0" cellpadding="0" border="0" id="subHeader">
+	    <tr>
+	      <td style="cursor:default" >
+	        <c:if test="${!empty sessionUser}">
+	          <tag:menuItem href="watch_list.shtm" png="eye" key="header.watchlist"/>
+	          <tag:menuItem href="views.shtm" png="icon_view" key="header.views"/>
+	          <tag:menuItem href="events.shtm" png="flag_white" key="header.alarms"/>
+	          <tag:menuItem href="reports.shtm" png="report" key="header.reports"/>
+	                
+	          <c:if test="${sessionUser.dataSourcePermission}">
+	            <img src="images/menu_separator.png"/>
+	            <tag:menuItem href="event_handlers.shtm" png="cog" key="header.eventHandlers"/>
+	            <tag:menuItem href="data_sources.shtm" png="icon_ds" key="header.dataSources"/>
+	            <tag:menuItem href="scheduled_events.shtm" png="clock" key="header.scheduledEvents"/>
+	            <tag:menuItem href="compound_events.shtm" png="multi_bell" key="header.compoundEvents"/>
+	            <tag:menuItem href="point_links.shtm" png="link" key="header.pointLinks"/>
+	            <tag:menuItem href="scripting.shtm" png="script_gear" key="header.scripts"/>
+	          </c:if>
+	          
+	          <img src="images/menu_separator.png"/>
+	          <tag:menuItem href="users.shtm" png="user" key="header.users"/>
+	          
+	          <c:if test="${sessionUser.admin}">
+		        <tag:menuItem href="usersProfiles.shtm" png="user_ds" key="header.usersProfiles"/>
+	            <tag:menuItem href="point_hierarchy.shtm" png="folder_brick" key="header.pointHierarchy"/>
+	            <tag:menuItem href="mailing_lists.shtm" png="book" key="header.mailingLists"/>
+	            <tag:menuItem href="publishers.shtm" png="transmit" key="header.publishers"/>
+	            <tag:menuItem href="maintenance_events.shtm" png="hammer" key="header.maintenanceEvents"/>
+	            <tag:menuItem href="system_settings.shtm" png="application_form" key="header.systemSettings"/>
+	            <tag:menuItem href="emport.shtm" png="script_code" key="header.emport"/>
+	            <tag:menuItem href="sql.shtm" png="script" key="header.sql"/>
+	          </c:if>
+	          
+	          <img src="images/menu_separator.png"/>
+	          <tag:menuItem href="logout.htm" png="control_stop_blue" key="header.logout"/>
+	          <tag:menuItem href="help.shtm" png="help" key="header.help"/>
+	        </c:if>
+	        <c:if test="${empty sessionUser}">
+	          <tag:menuItem href="login.htm" png="control_play_blue" key="header.login"/>
+	        </c:if>
+	        <div id="headerMenuDescription" class="labelDiv" style="position:absolute;display:none;"></div>
+	      </td>
+	      
+	      <td align="right">
+	        <c:if test="${!empty sessionUser}">
+	          <span class="copyTitle"><fmt:message key="header.user"/>: <b>${sessionUser.username}</b></span>
+	          <tag:img id="userMutedImg" onclick="MiscDwr.toggleUserMuted(setUserMuted)" onmouseover="hideLayer('localeEdit')"/>
+	          <tag:img png="house" title="header.goHomeUrl" onclick="goHomeUrl()" onmouseover="hideLayer('localeEdit')"/>
+	          <tag:img png="house_link" title="header.setHomeUrl" onclick="setHomeUrl()" onmouseover="hideLayer('localeEdit')"/>
+	        </c:if>
+	
+	        <div style="display:inline;" onmouseover="showMenu('localeEdit', -40, 10);">
+	          <tag:img png="world" title="header.changeLanguage"/>
+	          <div id="localeEdit" style="visibility:hidden;left:0px;top:15px;" class="labelDiv" onmouseout="hideLayer(this)">
+	            <c:forEach items="${availableLanguages}" var="lang">
+	              <a class="ptr" onclick="setLocale('${lang.key}')">${lang.value}</a><br/>
+	            </c:forEach>
+	          </div>
+	        </div>
+	      </td>
+	    </tr>
+	  </table>
+	</c:if>
+</c:if>
+<div class="container-fluid">
   <jsp:doBody/>
 </div>
 <table width="100%" cellspacing="0" cellpadding="0" border="0">

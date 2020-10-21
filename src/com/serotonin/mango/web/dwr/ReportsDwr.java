@@ -18,7 +18,9 @@
  */
 package com.serotonin.mango.web.dwr;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import com.serotonin.InvalidArgumentException;
@@ -169,12 +171,24 @@ public class ReportsDwr extends BaseDwr {
 		return response;
 	}
 
+//	public DwrResponseI18n runReport(String name, List<ReportPointVO> points, int includeEvents,
+//			boolean includeUserComments, int dateRangeType, int relativeDateType, int previousPeriodCount,
+//			int previousPeriodType, int pastPeriodCount, int pastPeriodType, boolean fromNone, int fromYear,
+//			int fromMonth, int fromDay, int fromHour, int fromMinute, boolean toNone, int toYear, int toMonth,
+//			int toDay, int toHour, int toMinute, boolean email, boolean includeData, boolean zipData,
+//			List<RecipientListEntryBean> recipients) {
+//		return runReport(name, points, includeEvents, includeUserComments, dateRangeType, relativeDateType,
+//				previousPeriodCount, previousPeriodType, pastPeriodCount, pastPeriodType, fromNone, fromYear, fromMonth,
+//				fromDay, fromHour, fromMinute, toNone, toYear, toMonth, toDay, toHour, toMinute, email, includeData,
+//				zipData, recipients, 0);
+//	}
+
 	public DwrResponseI18n runReport(String name, List<ReportPointVO> points, int includeEvents,
 			boolean includeUserComments, int dateRangeType, int relativeDateType, int previousPeriodCount,
 			int previousPeriodType, int pastPeriodCount, int pastPeriodType, boolean fromNone, int fromYear,
 			int fromMonth, int fromDay, int fromHour, int fromMinute, boolean toNone, int toYear, int toMonth,
 			int toDay, int toHour, int toMinute, boolean email, boolean includeData, boolean zipData,
-			List<RecipientListEntryBean> recipients) {
+			List<RecipientListEntryBean> recipients, int idReport) {
 		DwrResponseI18n response = new DwrResponseI18n();
 
 		// Basic validation
@@ -182,6 +196,7 @@ public class ReportsDwr extends BaseDwr {
 
 		if (!response.getHasMessages()) {
 			ReportVO report = new ReportVO();
+			report.setId(idReport);
 			report.setName(name);
 			report.setUserId(Common.getUser().getId());
 			report.setPoints(points);
@@ -298,5 +313,23 @@ public class ReportsDwr extends BaseDwr {
 		}
 
 		return report;
+	}
+
+	public Map<String, Object> queueReportById(int reportId) throws Exception {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			ReportVO report = new ReportDao().getReport(reportId);
+			ReportWorkItem.queueReport(report);
+			result.put("message", new LocalizableMessage("reports.reportQueued"));
+		} catch (Exception e) {
+			result.put("message", new LocalizableMessage("reports.reportQueuedError"));
+		}
+
+		return result;
+	}
+
+	public ReportInstance getLastReportInstanceByAdmin(int idReport) {
+		ReportDao reportDao = new ReportDao();
+		return reportDao.getLastReportInstanceByAdmin(idReport);
 	}
 }

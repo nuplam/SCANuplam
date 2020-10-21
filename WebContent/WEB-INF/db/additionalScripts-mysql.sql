@@ -1,0 +1,3 @@
+ALTER TABLE reportinstances
+ADD COLUMN reportId INT,
+ADD FOREIGN KEY (reportId) REFERENCES reports(id) ON DELETE SET NULL;
