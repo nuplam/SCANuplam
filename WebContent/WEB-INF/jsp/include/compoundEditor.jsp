@@ -123,10 +123,16 @@
             if (compoundEditor.component.defName == "simpleCompound")
                 ViewDwr.saveSimpleCompoundComponent(compoundEditor.component.id, $get("compoundName"),
                         $get("compoundBackgroundColour"), childPointIds, compoundEditor.saveCB);
-            else if (compoundEditor.component.defName == "imageChart")
+            else if (compoundEditor.component.defName == "imageChart"){
+            	var bkgd = $("viewBackground");
+                var bkgdBox = dojo.html.getMarginBox(bkgd);
+                
+                var w = Math.floor(100*$get("imageChartWidth")/bkgdBox.width)
+                
                 ViewDwr.saveImageChartComponent(compoundEditor.component.id, $get("compoundName"),
-                        $get("imageChartWidth"), $get("imageChartHeight"), $get("imageChartDurationType"),
+                		$get("imageChartWidth"), $get("imageChartHeight"), $get("imageChartDurationType"),
                         $get("imageChartDurationPeriods"), childPointIds, compoundEditor.saveCB);
+            }
             else
                 ViewDwr.saveCompoundComponent(compoundEditor.component.id, $get("compoundName"), childPointIds,
                         compoundEditor.saveCB);

@@ -29,80 +29,81 @@ import com.serotonin.db.spring.ExtendedJdbcTemplate;
 import com.serotonin.mango.Common;
 
 public class MySQLAccess extends BasePooledAccess {
-    public MySQLAccess(ServletContext ctx) {
-        super(ctx);
-    }
+	public MySQLAccess(ServletContext ctx) {
+		super(ctx);
+	}
 
-    @Override
-    protected void initializeImpl(String propertyPrefix) {
-        super.initializeImpl(propertyPrefix);
-        ((BasicDataSource) dataSource).setInitialSize(3);
-        ((BasicDataSource) dataSource).setMaxWait(-1);
-        ((BasicDataSource) dataSource).setTestWhileIdle(true);
-        ((BasicDataSource) dataSource).setTimeBetweenEvictionRunsMillis(10000);
-        ((BasicDataSource) dataSource).setMinEvictableIdleTimeMillis(60000);
-    }
+	@Override
+	protected void initializeImpl(String propertyPrefix) {
+		super.initializeImpl(propertyPrefix);
+		((BasicDataSource) dataSource).setInitialSize(3);
+		((BasicDataSource) dataSource).setMaxWait(-1);
+		((BasicDataSource) dataSource).setTestWhileIdle(true);
+		((BasicDataSource) dataSource).setTimeBetweenEvictionRunsMillis(10000);
+		((BasicDataSource) dataSource).setMinEvictableIdleTimeMillis(60000);
+	}
 
-    @Override
-    protected void initializeImpl(String propertyPrefix, String dataSourceName)
-    {
-        super.initializeImpl(propertyPrefix, dataSourceName);
-    }
+	@Override
+	protected void initializeImpl(String propertyPrefix, String dataSourceName) {
+		super.initializeImpl(propertyPrefix, dataSourceName);
+	}
 
-    @Override
-    protected String getUrl(String propertyPrefix) {
-        String url = super.getUrl(propertyPrefix);
-        if (url.indexOf('?') > 0)
-            url += "&";
-        else
-            url += "?";
-        url += "useUnicode=yes&characterEncoding=" + Common.UTF8;
-        return url;
-    }
+	@Override
+	protected String getUrl(String propertyPrefix) {
+		String url = super.getUrl(propertyPrefix);
+		if (url.indexOf('?') > 0)
+			url += "&";
+		else
+			url += "?";
+		url += "useUnicode=yes&characterEncoding=" + Common.UTF8;
+		return url;
+	}
 
-    @Override
-    public DatabaseType getType() {
-        return DatabaseType.MYSQL;
-    }
+	@Override
+	public DatabaseType getType() {
+		return DatabaseType.MYSQL;
+	}
 
-    @Override
-    protected String getDriverClassName() {
-        return "com.mysql.jdbc.Driver";
-    }
+	@Override
+	protected String getDriverClassName() {
+		return "com.mysql.jdbc.Driver";
+	}
 
-    @Override
-    protected boolean newDatabaseCheck(ExtendedJdbcTemplate ejt) {
-        try {
-            ejt.execute("select count(*) from users");
-        }
-        catch (DataAccessException e) {
-            if (e.getCause() instanceof SQLException) {
-                SQLException se = (SQLException) e.getCause();
-                if ("42S02".equals(se.getSQLState())) {
-                    // This state means a missing table. Assume that the schema needs to be created.
-                    createSchema("/WEB-INF/db/createTables-mysql.sql");
-                    return true;
-                }
-            }
-            throw e;
-        }
-        return false;
-    }
+	@Override
+	protected boolean newDatabaseCheck(ExtendedJdbcTemplate ejt) {
+		try {
+			ejt.execute("select count(*) from users");
+		} catch (DataAccessException e) {
+			if (e.getCause() instanceof SQLException) {
+				SQLException se = (SQLException) e.getCause();
+				if ("42S02".equals(se.getSQLState())) {
+					// This state means a missing table. Assume that the schema needs to be created.
+					String scriptNames[] = { "/WEB-INF/db/createTables-mysql.sql",
+							"/WEB-INF/db/additionalScripts-mysql.sql" };
+//					String scriptNames = "/WEB-INF/db/createTables-mysql.sql";
+					createSchema(scriptNames);
+					return true;
+				}
+			}
+			throw e;
+		}
+		return false;
+	}
 
-    @Override
-    public double applyBounds(double value) {
-        if (Double.isNaN(value))
-            return 0;
-        if (value == Double.POSITIVE_INFINITY)
-            return Double.MAX_VALUE;
-        if (value == Double.NEGATIVE_INFINITY)
-            return -Double.MAX_VALUE;
+	@Override
+	public double applyBounds(double value) {
+		if (Double.isNaN(value))
+			return 0;
+		if (value == Double.POSITIVE_INFINITY)
+			return Double.MAX_VALUE;
+		if (value == Double.NEGATIVE_INFINITY)
+			return -Double.MAX_VALUE;
 
-        return value;
-    }
+		return value;
+	}
 
-    @Override
-    public void executeCompress(ExtendedJdbcTemplate ejt) {
-        // no op
-    }
+	@Override
+	public void executeCompress(ExtendedJdbcTemplate ejt) {
+		// no op
+	}
 }

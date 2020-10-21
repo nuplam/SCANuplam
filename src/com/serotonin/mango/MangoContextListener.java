@@ -49,8 +49,6 @@ import com.serotonin.mango.rt.event.type.AuditEventType;
 import com.serotonin.mango.rt.event.type.EventType;
 import com.serotonin.mango.rt.event.type.SystemEventType;
 import com.serotonin.mango.rt.maint.BackgroundProcessing;
-import com.serotonin.mango.rt.maint.DataPurge;
-import com.serotonin.mango.rt.maint.WorkItemMonitor;
 import com.serotonin.mango.util.BackgroundContext;
 import com.serotonin.mango.view.DynamicImage;
 import com.serotonin.mango.view.ImageSet;
@@ -503,13 +501,13 @@ public class MangoContextListener implements ServletContextListener {
 	private void maintenanceInitialize() {
 		// Processes are scheduled in the timer, so they are canceled when it
 		// stops.
-		DataPurge.schedule();
+		// DataPurge.schedule();
 
 		// The version checking job reschedules itself after each execution so
 		// that requests from the various Mango
 		// instances even out over time.
 		// VersionCheck.start();
-		WorkItemMonitor.start();
+		// WorkItemMonitor.start();
 
 		// MemoryCheck.start();
 	}

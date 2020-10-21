@@ -21,6 +21,7 @@ package com.serotonin.mango.web.mvc.controller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,10 +33,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.serotonin.ShouldNeverHappenException;
 import com.serotonin.mango.Common;
+import com.serotonin.mango.db.dao.ReportDao;
 import com.serotonin.mango.db.dao.ViewDao;
 import com.serotonin.mango.view.View;
 import com.serotonin.mango.vo.User;
 import com.serotonin.mango.vo.permission.Permissions;
+import com.serotonin.mango.vo.report.ReportVO;
 import com.serotonin.mango.web.mvc.SimpleFormRedirectController;
 import com.serotonin.mango.web.mvc.form.ViewEditForm;
 import com.serotonin.util.ValidationUtils;
@@ -79,6 +82,11 @@ public class ViewEditController extends SimpleFormRedirectController {
 		} else
 			view = user.getView();
 
+		// Recupera o modelos de relatório do usuário logado
+		User usuarioLogado = Common.getUser();
+		ReportDao reportDao = new ReportDao();
+		List<ReportVO> reports = reportDao.getReports(usuarioLogado.getId());
+		request.setAttribute("reports", reports);
 		ViewEditForm form = new ViewEditForm();
 		form.setView(view);
 		return form;

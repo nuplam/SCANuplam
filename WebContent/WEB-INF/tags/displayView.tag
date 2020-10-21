@@ -19,6 +19,27 @@
 --%><%@tag body-content="empty"%><%--
 --%><%@attribute name="view" type="com.serotonin.mango.view.View" required="true" rtexprvalue="true"%><%--
 --%><%@attribute name="emptyMessageKey" required="true"%>
+	<%@attribute name="reports" required="true" type="java.util.Map" %>
+
+<tag:page dwr="ReportsDwr" showHeader="false" showMenu="false">
+<script type="text/javascript">
+	function imprimir(reportInstance) {
+		if(reportInstance == null){
+			alert("Ainda não foi gerado relatório para o modelo");
+		} else {
+	        var pathRelatorio = "reportChart.shtm?instanceId=" + reportInstance.id;
+	        var janela = window.open(pathRelatorio);
+	        janela.onload = function(){
+	            janela.print();
+	            setTimeout(function(){ janela.close(); }, 100);
+	        };
+		}		
+	}
+	
+	function imprimirUltimoRelatorio(reportId) {
+		var reportInstance = ReportsDwr.getLastReportInstanceByAdmin(reportId, imprimir);
+	}
+</script>
 <div id="viewContent">
   <c:choose>
     <c:when test="${empty view}">
@@ -28,10 +49,10 @@
    	</c:when>
     	
     <c:when test="${empty view.backgroundFilename}">
-      <img id="viewBackground" src="images/spacer.gif" alt="" width="740" height="500"/>
+      <img id="viewBackground" src="images/spacer.gif" alt="" width="100%"/>
     </c:when>
     <c:otherwise>
-      <img id="viewBackground" src="${view.backgroundFilename}" alt=""/>
+      <img id="viewBackground" src="${view.backgroundFilename}" alt="" width="100%"/>
     </c:otherwise>
   </c:choose>
   
@@ -60,9 +81,9 @@
       </c:when>
       
       <c:when test="${vc.defName == 'imageChart'}">
-        <div id="c${vc.id}" style="position:absolute;left:${vc.x}px;top:${vc.y}px;"
+        <div id="c${vc.id}" style="position:absolute;left:${vc.x}%;top:${vc.y}%;width:${Math.floor(100*vc.width/1100)}%"
                   onmouseover="vcOver('c${vc.id}', 10);" onmouseout="vcOut('c${vc.id}');">
-          <div id="c${vc.id}Content"><img src="images/icon_comp.png" alt=""/></div>
+          <div id="c${vc.id}Content" style="width:100%"><img src="images/icon_comp.png" width="100%" alt=""/></div>
           <div id="c${vc.id}Controls" class="controlContent">
             <div id="c${vc.id}Info">
               <tag:img png="hourglass" title="common.gettingData"/>
@@ -99,7 +120,26 @@
         </div>
       </c:when>
       
+      <c:when test="${vc.defName == 'report'}">
+        <div id="c${vc.id}" style="position:absolute;left:${vc.x}px;top:${vc.y}px;"
+                  onmouseover="vcOver('c${vc.id}', 10);" onmouseout="vcOut('c${vc.id}');">
+          <div id="c${vc.id}Content" style="text-align: center;">
+          	<span>${reports[vc.content].name}</span>
+          	<img style="margin: auto;" src="images/report.png" alt=""/>
+          </div>
+          <div id="c${vc.id}Controls" class="controlContent">
+            <div id="c${vc.id}Info">              
+              <button onclick="imprimirUltimoRelatorio(${vc.content})">Imprimir Relatório</button>
+            </div>
+          </div>
+        </div>
+      </c:when>      
+      
       <c:otherwise><tag:pointComponent vc="${vc}"/></c:otherwise>
     </c:choose>
   </c:forEach>
 </div>
+</tag:page>
+<style>
+
+</style>

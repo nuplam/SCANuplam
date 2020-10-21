@@ -81,6 +81,7 @@ abstract public class ViewComponent implements Serializable, JsonSerializable {
 			// d.add(FlexBuilderComponent.DEFINITION);
 			d.add(ChartComparatorComponent.DEFINITION);
 			d.add(FlexBuilderComponent.DEFINITION);
+			d.add(ReportComponent.DEFINITION);
 			DEFINITIONS = d;
 		}
 		return DEFINITIONS;
@@ -134,6 +135,8 @@ abstract public class ViewComponent implements Serializable, JsonSerializable {
 			return ChartComparatorComponent.class;
 		if (def == FlexBuilderComponent.DEFINITION)
 			return FlexBuilderComponent.class;
+		if (def == ReportComponent.DEFINITION)
+			return ReportComponent.class;
 		return null;
 	}
 

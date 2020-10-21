@@ -57,6 +57,7 @@ import com.serotonin.mango.view.component.HtmlComponent;
 import com.serotonin.mango.view.component.ImageChartComponent;
 import com.serotonin.mango.view.component.MultistateGraphicComponent;
 import com.serotonin.mango.view.component.PointComponent;
+import com.serotonin.mango.view.component.ReportComponent;
 import com.serotonin.mango.view.component.ScriptComponent;
 import com.serotonin.mango.view.component.SimpleCompoundComponent;
 import com.serotonin.mango.view.component.SimplePointComponent;
@@ -158,8 +159,8 @@ public class ViewDwr extends BaseDwr {
 	}
 
 	/**
-	 * Retrieves point state for all points on a given view. This is the
-	 * monitoring version of the method. See below for the view editing version.
+	 * Retrieves point state for all points on a given view. This is the monitoring
+	 * version of the method. See below for the view editing version.
 	 * 
 	 * @param viewId
 	 * @return
@@ -467,8 +468,8 @@ public class ViewDwr extends BaseDwr {
 	}
 
 	/**
-	 * Allows the setting of a given data point. Overrides BaseDwr to resolve
-	 * the point view id.
+	 * Allows the setting of a given data point. Overrides BaseDwr to resolve the
+	 * point view id.
 	 * 
 	 * @param pointId
 	 * @param valueStr
@@ -499,6 +500,12 @@ public class ViewDwr extends BaseDwr {
 	@MethodFilter
 	public void saveHtmlComponent(String viewComponentId, String content) {
 		HtmlComponent c = (HtmlComponent) getViewComponent(viewComponentId);
+		c.setContent(content);
+	}
+
+	@MethodFilter
+	public void saveReportComponent(String viewComponentId, String content) {
+		ReportComponent c = (ReportComponent) getViewComponent(viewComponentId);
 		c.setContent(content);
 	}
 

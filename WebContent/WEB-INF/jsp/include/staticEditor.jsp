@@ -115,16 +115,13 @@
             ViewDwr.getViewComponent(compId, function(comp) {
                 // Update the data in the form.
                 staticEditor.component = comp;
-                
 				if(comp.defName == 'html') {
 					$set("staticPointContent", comp.content);
 					show('htmlEditor');
 		            hide('linkEditor');
 		            hide('scriptButtonEditor');
 		            hide('flexEditor');
-		            
-		            show("staticEditorPopup");
-		            
+		            show("staticEditorPopup");		
 				} else if(comp.defName == 'link'){
 					ViewDwr.getViews(function(views) {
 						staticEditor.updateViewsList(views);

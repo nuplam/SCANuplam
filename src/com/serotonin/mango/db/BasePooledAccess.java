@@ -39,148 +39,155 @@ import com.serotonin.mango.Common;
 /**
  * @author Matthew Lohbihler
  */
-abstract public class BasePooledAccess extends DatabaseAccess
-{
-    private final Log log = LogFactory.getLog(BasePooledAccess.class);
-    protected DataSource dataSource;
-    protected boolean dataSourceFound = false;
+abstract public class BasePooledAccess extends DatabaseAccess {
+	private final Log log = LogFactory.getLog(BasePooledAccess.class);
+	protected DataSource dataSource;
+	protected boolean dataSourceFound = false;
 
-    public BasePooledAccess(ServletContext ctx)
-    {
-        super(ctx);
-    }
+	public BasePooledAccess(ServletContext ctx) {
+		super(ctx);
+	}
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected void initializeImpl(String propertyPrefix, String dataSourceName)
-    {
-        log.info("Initializing pooled connection manager");
+	@SuppressWarnings("deprecation")
+	@Override
+	protected void initializeImpl(String propertyPrefix, String dataSourceName) {
+		log.info("Initializing pooled connection manager");
 
-        if(Common.getEnvironmentProfile().getString(propertyPrefix + "db.datasource", "false").equals("true"))
-        {
-            try
-            {
-                log.info("Looking for Datasource: " + Common.getEnvironmentProfile().getString(propertyPrefix + "db.datasourceName"));
-                dataSource = (DataSource) new InitialContext().lookup(Common.getEnvironmentProfile().getString(propertyPrefix + "db.datasourceName"));
-                Connection conn = dataSource.getConnection();
-                log.info("DataSource meta: " + conn.getMetaData().getDatabaseProductName() + " " + conn.getMetaData().getDatabaseProductVersion());
-                dataSourceFound = true;
-            }
-            catch(NamingException e)
-            {
-                log.info("Datasource not found!" + e.getLocalizedMessage());
-            }
-            catch(SQLException e)
-            {
-                log.error("SQL Exception: " + e.getLocalizedMessage());
-            }
-        }
-    }
+		if (Common.getEnvironmentProfile().getString(propertyPrefix + "db.datasource", "false").equals("true")) {
+			try {
+				log.info("Looking for Datasource: "
+						+ Common.getEnvironmentProfile().getString(propertyPrefix + "db.datasourceName"));
+				dataSource = (DataSource) new InitialContext()
+						.lookup(Common.getEnvironmentProfile().getString(propertyPrefix + "db.datasourceName"));
+				Connection conn = dataSource.getConnection();
+				log.info("DataSource meta: " + conn.getMetaData().getDatabaseProductName() + " "
+						+ conn.getMetaData().getDatabaseProductVersion());
+				dataSourceFound = true;
+			} catch (NamingException e) {
+				log.info("Datasource not found!" + e.getLocalizedMessage());
+			} catch (SQLException e) {
+				log.error("SQL Exception: " + e.getLocalizedMessage());
+			}
+		}
+	}
 
-    @Override
-    protected void initializeImpl(String propertyPrefix)
-    {
-        log.info("Initializing pooled connection manager");
-        dataSource = new BasicDataSource();
-        ((BasicDataSource) dataSource).setDriverClassName(getDriverClassName());
-        ((BasicDataSource) dataSource).setUrl(getUrl(propertyPrefix));
-        ((BasicDataSource) dataSource).setUsername(Common.getEnvironmentProfile().getString(propertyPrefix + "db.username"));
-        ((BasicDataSource) dataSource).setPassword(getDatabasePassword(propertyPrefix));
-        ((BasicDataSource) dataSource).setMaxActive(Common.getEnvironmentProfile().getInt(propertyPrefix + "db.pool.maxActive", 10));
-        ((BasicDataSource) dataSource).setMaxIdle(Common.getEnvironmentProfile().getInt(propertyPrefix + "db.pool.maxIdle", 10));
-    }
+	@Override
+	protected void initializeImpl(String propertyPrefix) {
+		log.info("Initializing pooled connection manager");
+		dataSource = new BasicDataSource();
+		((BasicDataSource) dataSource).setDriverClassName(getDriverClassName());
+		((BasicDataSource) dataSource).setUrl(getUrl(propertyPrefix));
+		((BasicDataSource) dataSource)
+				.setUsername(Common.getEnvironmentProfile().getString(propertyPrefix + "db.username"));
+		((BasicDataSource) dataSource).setPassword(getDatabasePassword(propertyPrefix));
+		((BasicDataSource) dataSource)
+				.setMaxActive(Common.getEnvironmentProfile().getInt(propertyPrefix + "db.pool.maxActive", 10));
+		((BasicDataSource) dataSource)
+				.setMaxIdle(Common.getEnvironmentProfile().getInt(propertyPrefix + "db.pool.maxIdle", 10));
+	}
 
-    protected String getUrl(String propertyPrefix)
-    {
-        return Common.getEnvironmentProfile().getString(propertyPrefix + "db.url");
-    }
+	protected String getUrl(String propertyPrefix) {
+		return Common.getEnvironmentProfile().getString(propertyPrefix + "db.url");
+	}
 
-    abstract protected String getDriverClassName();
+	abstract protected String getDriverClassName();
 
-    @Override
-    public void runScript(String[] script, OutputStream out)
-    {
-        ExtendedJdbcTemplate ejt = new ExtendedJdbcTemplate();
-        ejt.setDataSource(dataSource);
+	@Override
+	public void runScript(String[] script, OutputStream out) {
+		ExtendedJdbcTemplate ejt = new ExtendedJdbcTemplate();
+		ejt.setDataSource(dataSource);
 
-        StringBuilder statement = new StringBuilder();
+		StringBuilder statement = new StringBuilder();
 
-        for(String line : script)
-        {
-            // Trim whitespace
-            line = line.trim();
+		for (String line : script) {
+			// Trim whitespace
+			line = line.trim();
 
-            // Skip comments
-            if(line.startsWith("--"))
-                continue;
+			// Skip comments
+			if (line.startsWith("--"))
+				continue;
 
-            statement.append(line);
-            statement.append(" ");
-            if(line.endsWith(";"))
-            {
-                // Execute the statement
-                ejt.execute(statement.toString());
-                statement.delete(0, statement.length() - 1);
-            }
-        }
-    }
+			statement.append(line);
+			statement.append(" ");
+			if (line.endsWith(";")) {
+				// Execute the statement
+				ejt.execute(statement.toString());
+				statement.delete(0, statement.length() - 1);
+			}
+		}
+	}
 
-    protected void createSchema(String scriptFile)
-    {
-        BufferedReader in = new BufferedReader(new InputStreamReader(ctx.getResourceAsStream(scriptFile)));
+	protected void createSchema(String scriptFile) {
+		BufferedReader in = new BufferedReader(new InputStreamReader(ctx.getResourceAsStream(scriptFile)));
 
-        List<String> lines = new ArrayList<String>();
-        try
-        {
-            String line;
-            while((line = in.readLine()) != null)
-                lines.add(line);
+		List<String> lines = new ArrayList<String>();
+		try {
+			String line;
+			while ((line = in.readLine()) != null)
+				lines.add(line);
 
-            String[] script = new String[lines.size()];
-            lines.toArray(script);
-            runScript(script, null);
-        }
-        catch(IOException ioe)
-        {
-            throw new ShouldNeverHappenException(ioe);
-        }
-        finally
-        {
-            try
-            {
-                in.close();
-            }
-            catch(IOException ioe)
-            {
-                log.warn("", ioe);
-            }
-        }
-    }
+			String[] script = new String[lines.size()];
+			lines.toArray(script);
+			runScript(script, null);
+		} catch (IOException ioe) {
+			throw new ShouldNeverHappenException(ioe);
+		} finally {
+			try {
+				in.close();
+			} catch (IOException ioe) {
+				log.warn("", ioe);
+			}
+		}
+	}
 
-    @Override
-    public void terminate()
-    {
-        log.info("Stopping database");
-        try
-        {
-            if(dataSourceFound)
-                ((BasicDataSource) dataSource).close();
-        }
-        catch(SQLException e)
-        {
-            log.warn("", e);
-        }
-    }
+	protected void createSchema(String[] scriptFiles) {
+		// BufferedReader in = new BufferedReader(new
+		// InputStreamReader(ctx.getResourceAsStream(scriptFile)));
 
-    @Override
-    public DataSource getDataSource()
-    {
-        return dataSource;
-    }
+		// List<BufferedReader> ins = new ArrayList<BufferedReader>();
 
-    @Override
-    public File getDataDirectory()
-    {
-        return null;
-    }
+		List<String> lines = new ArrayList<String>();
+
+		for (String scriptFile : scriptFiles) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(ctx.getResourceAsStream(scriptFile)));
+			String line;
+			try {
+				while ((line = in.readLine()) != null)
+					lines.add(line);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try {
+				in.close();
+			} catch (IOException ioe) {
+				log.warn("", ioe);
+			}
+		}
+
+		String[] script = new String[lines.size()];
+		lines.toArray(script);
+		runScript(script, null);
+	}
+
+	@Override
+	public void terminate() {
+		log.info("Stopping database");
+		try {
+			if (dataSourceFound)
+				((BasicDataSource) dataSource).close();
+		} catch (SQLException e) {
+			log.warn("", e);
+		}
+	}
+
+	@Override
+	public DataSource getDataSource() {
+		return dataSource;
+	}
+
+	@Override
+	public File getDataDirectory() {
+		return null;
+	}
 }

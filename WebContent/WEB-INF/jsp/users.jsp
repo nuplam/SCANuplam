@@ -342,13 +342,13 @@
         <div class="borderDiv">
           <table width="100%">
             <tr>
-              <td>
-                <span class="smallTitle"><fmt:message key="users.title"/></span>
-                <tag:help id="userAdministration"/>
-              </td>
-              <td align="right"><tag:img png="user_add" onclick="showUser(${applicationScope['constants.Common.NEW_ID']}, false)"
+	            <td>
+	              <span class="smallTitle"><fmt:message key="users.title"/></span>
+	              <tag:help id="userAdministration"/>
+	            </td>
+              	<td align="right"><tag:img png="user_add" onclick="showUser(${applicationScope['constants.Common.NEW_ID']}, false)"
                       title="users.add" id="u${applicationScope['constants.Common.NEW_ID']}Img"/></td>
-            </tr>
+			</tr>
           </table>
           <table id="usersTable">
             <tbody id="u_TEMPLATE_" onclick="showUser(getMangoId(this), true)" class="ptr" style="display:none;"><tr>
@@ -432,6 +432,7 @@
           </table>
         </div>
       </td>
+      
     </tr>
   </table>
 </tag:page>
